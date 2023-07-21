@@ -10,13 +10,17 @@ const showAllDepartments = async () => {
 
 
 const showAllRoles = async () => {
-    const roles = await runQuery('SELECT roles.id,roles.title,roles.salary,departments.name AS department FROM roles INNER JOIN departments on roles.departments_id = departments.id;');
+    const roles = await runQuery(`SELECT roles.id,roles.title,roles.salary,departments.name AS department 
+                                  FROM roles INNER JOIN departments on roles.departments_id = departments.id;`);
     console.table(roles);
     mainPage();
 };
 
 const showAllEmployees = async () => {
-    const employees = await runQuery('SELECT employees.id,employees.first_name,employees.last_name, roles.title AS title, departments.name AS department, roles.salary FROM employees LEFT JOIN roles on employees.role_id = roles.id LEFT JOIN departments ON roles.departments_id = departments.id;');
+    const employees = await runQuery(`SELECT employees.id,employees.first_name,employees.last_name,roles.title AS title,departments.name AS department,roles.salary,  CONCAT(manager.first_name, ' ', manager.last_name) AS \`manager(fisrt-last name)\`
+                                      FROM employees LEFT JOIN roles on employees.role_id = roles.id 
+                                      LEFT JOIN departments ON roles.departments_id = departments.id 
+                                      LEFT JOIN employees manager on employees.manager_id= manager.id;`);
     console.table(employees);
     mainPage();
 };
