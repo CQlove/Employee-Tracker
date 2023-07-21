@@ -40,6 +40,42 @@ const departmentAdding = async () => {
 };
 
 
+
+const roleAdding = async () => {
+    const departments = await runQuery('SELECT * FROM departments');
+    // using map method to return a new selected department
+    const departmentChoices = departments.map(department => ({
+        // display the department names
+        name: department.Name,
+        // department.id is the value will be stored
+        value: department.id
+    }));
+
+    const role = await inquirer.prompt([
+        {
+            type: 'input',
+            name: 'title',
+            message: 'Enter the title of the new role:'
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message: 'Enter the salary for this role:'
+        },
+        {
+            type: 'list',
+            // display the department name instead of deparment id
+            name: 'departments_id',
+            message: 'Select the department for this role:',
+            choices: departmentChoices
+        }
+    ]);
+
+    await runQuery('INSERT INTO roles (title, salary, departments_id) VALUES (?, ?, ?)', [role.title, role.salary, role.departments_id]);
+    console.log(`Role "${role.title}" added successfully!`);
+    mainPage();
+};
+
 const mainPage = () => {
     inquirer.prompt([
         {
