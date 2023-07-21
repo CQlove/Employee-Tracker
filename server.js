@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const { welcome, runQuery } = require('./db/db');
+const cTable = require('console.table');
 
 const showAllDepartments = async () => {
     const departments = await runQuery('SELECT * FROM departments');
@@ -9,13 +10,13 @@ const showAllDepartments = async () => {
 
 
 const showAllRoles = async () => {
-    const roles = await runQuery('SELECT * FROM roles');
+    const roles = await runQuery('SELECT roles.id,roles.title,roles.salary,departments.name AS department FROM roles INNER JOIN departments on roles.departments_id = departments.id;');
     console.table(roles);
     mainPage();
 };
 
 const showAllEmployees = async () => {
-    const employees = await runQuery('SELECT * FROM employees');
+    const employees = await runQuery('SELECT employees.id,employees.first_name,employees.last_name, roles.title AS title, departments.name AS department, roles.salary FROM employees LEFT JOIN roles on employees.role_id = roles.id LEFT JOIN departments ON roles.departments_id = departments.id;');
     console.table(employees);
     mainPage();
 };
@@ -25,7 +26,7 @@ const mainPage = () => {
     inquirer.prompt([
         {
             type: 'list',
-            name: 'choice',
+            name: 'choices',
             message: 'What would you like to do?',
             choices: [
                 'View all departments',
@@ -33,6 +34,7 @@ const mainPage = () => {
                 'View all employees',
                 'Add a department',
                 'Add a role',
+                'Add an employee',
                 'Update an employee role',
                 'Exit'
             ]
@@ -44,32 +46,19 @@ const mainPage = () => {
 
             if (choices === "View all departments") {
                 showAllDepartments();
-            }
-
-            if (choices === "View all roles") {
+            } else if (choices === "View all roles") {
                 showAllRoles();
-            }
-
-            if (choices === "View all employees") {
+            } else if (choices === "View all employees") {
                 showAllEmployees();
-            }
-
-            if (choices === "Add a department") {
+            } else if (choices === "Add a department") {
                 departmentAdding();
-            }
-
-            if (choices === "Add a role") {
+            } else if (choices === "Add a role") {
                 roleAdding();
-            }
-
-            if (choices === 'Add an employee') {
+            } else if (choices === 'Add an employee') {
                 employeeAdding();
-            }
-
-            if (choices === 'Update an employee role') {
+            } else if (choices === 'Update an employee role') {
                 employeeUpdate();
-            }
-            if (choices === 'Exit') {
+            } else if (choices === 'Exit') {
                 console.log('Exiting the Employee Track system.');
                 connection.end();
             }
