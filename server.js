@@ -25,6 +25,20 @@ const showAllEmployees = async () => {
     mainPage();
 };
 
+const departmentAdding = async () => {
+    const department = await inquirer.prompt([
+        {
+            type: 'input',
+            name: 'name',
+            message: 'Enter the name of the new department:'
+        }
+    ]);
+
+    await runQuery('INSERT INTO departments (name) VALUES (?)', [department.name]);
+    console.log(`Department "${department.name}" added successfully!`);
+    mainPage();
+};
+
 
 const mainPage = () => {
     inquirer.prompt([
