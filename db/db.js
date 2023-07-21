@@ -11,9 +11,16 @@ const connection = mysql.createConnection({
 
 connection.connect(err => {
     if (err) throw err;
-    console.log('Connected to the database.');
+    console.log('Success to connect to the database!');
 });
 
+const welcome = () => {
+    console.log("***********************************");
+    console.log("*                                 *");
+    console.log("*        EMPLOYEE MANAGER         *");
+    console.log("*                                 *");
+    console.log("***********************************");
+};
 
 const runQuery = (sql, values) => {
     return new Promise((resolve, reject) => {
@@ -25,5 +32,6 @@ const runQuery = (sql, values) => {
 };
 
 module.exports = {
+    welcome,
     runQuery
 };
