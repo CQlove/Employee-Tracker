@@ -1,5 +1,24 @@
 const inquirer = require('inquirer');
-const { welcome, runQuery } = require('./db');
+const { welcome, runQuery } = require('./db/db');
+
+const showAllDepartments = async () => {
+    const departments = await runQuery('SELECT * FROM departments');
+    console.table(departments);
+    mainPage();
+};
+
+
+const showAllRoles = async () => {
+    const roles = await runQuery('SELECT * FROM roles');
+    console.table(roles);
+    mainPage();
+};
+
+const showAllEmployees = async () => {
+    const employees = await runQuery('SELECT * FROM employees');
+    console.table(employees);
+    mainPage();
+};
 
 
 const mainPage = () => {
@@ -50,7 +69,11 @@ const mainPage = () => {
             if (choices === 'Update an employee role') {
                 employeeUpdate();
             }
+            if (choices === 'Exit') {
+                console.log('Exiting the Employee Track system.');
+                connection.end();
+            }
         });
-}
+};
 const opening = () => { console.log("Welcome to Employee Track system!"); welcome(); mainPage(); }
 opening();
