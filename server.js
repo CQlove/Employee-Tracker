@@ -76,6 +76,50 @@ const roleAdding = async () => {
     mainPage();
 };
 
+const getAllEmployees = async () => {
+    const employees = await runQuery('SELECT id, CONCAT(first_name, " ", last_name) AS employee_name FROM employees');
+    return employees;
+};
+
+const getAllRoles = async () => {
+    const roles = await runQuery('SELECT id, title FROM roles');
+    return roles;
+};
+
+const employeeUpdate = async () => {
+    const employees = await getAllEmployees();
+    const employeeChoices = employees.map(employee => ({
+        name: employee.employee_name,
+        value: employee.id
+    }));
+
+    const roles = await getAllRoles();
+    const roleChoices = roles.map(role => ({
+        name: role.title,
+        value: role.id
+    }));
+
+    const updateEmployee = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'employee_id',
+            message: 'Select the employee you want to update:',
+            choices: employeeChoices
+        },
+        {
+            type: 'list',
+            name: 'role_id',
+            message: 'Select the new role for the employee:',
+            choices: roleChoices
+        }
+    ]);
+
+    await runQuery('UPDATE employees SET role_id = ? WHERE id = ?', [updateEmployee.role_id, updateEmployee.employee_id]);
+    console.log('Employee role updated successfully!');
+    mainPage();
+}
+
+
 const mainPage = () => {
     inquirer.prompt([
         {
