@@ -8,6 +8,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Repo-Link](#Repo-Link)
+- [Viedo-Guide](#Viedo-Guide)
 
 ## User-story
 
@@ -84,11 +85,10 @@ Now, you can run the application!
 To use the application, you need to follow the installation part to open the application. Then use arrow key to select whatever section you want. By hitting enter to execute the section you want, the application may ask you some questions, you just need to follow the step to run the application.
 
 ## Repo Link
+
 [Link to the code repository](https://github.com/CQlove/Employee-Tracker)
 
-
-
-
+## Viedo-Guide
 
 https://github.com/CQlove/Employee-Tracker/assets/128104973/7a243e94-0903-4d81-8710-e95f23228608
 
