@@ -1,6 +1,19 @@
 const inquirer = require('inquirer');
 const { welcome, runQuery } = require('./db/db');
 const cTable = require('console.table');
+const validateCheck = function (input) {
+    if (input.trim() === '') {
+        return 'This input cannot be empty, please re-enter again'
+    } return true;
+};
+const validateCheckNumber = function (input) {
+    const numberCheck = /^\d+(\.\d{1,2})?$/;
+    if (!numberCheck.test(input)) {
+        return 'Must be input a number and up to two decimal places, please enter again';
+    }
+
+    return true;
+}
 
 const showAllDepartments = async () => {
     const departments = await runQuery('SELECT * FROM departments');
@@ -8,7 +21,7 @@ const showAllDepartments = async () => {
     mainPage();
 };
 
-
+// using selcet from & join way to get a new table
 const showAllRoles = async () => {
     const roles = await runQuery(`SELECT roles.id,roles.title,roles.salary,departments.name AS department 
                                   FROM roles INNER JOIN departments on roles.departments_id = departments.id;`);
@@ -16,9 +29,11 @@ const showAllRoles = async () => {
     mainPage();
 };
 
+// using slecet from and left join this time because we need both left and right table
 const showAllEmployees = async () => {
     const employees = await runQuery(`SELECT employees.id,employees.first_name,employees.last_name,roles.title AS title,departments.name AS department,roles.salary,  CONCAT(manager.first_name, ' ', manager.last_name) AS \`manager(fisrt-last name)\`
-                                      FROM employees LEFT JOIN roles on employees.role_id = roles.id 
+                                      FROM employees 
+                                      LEFT JOIN roles on employees.role_id = roles.id 
                                       LEFT JOIN departments ON roles.departments_id = departments.id 
                                       LEFT JOIN employees manager on employees.manager_id= manager.id;`);
     console.table(employees);
@@ -30,7 +45,8 @@ const departmentAdding = async () => {
         {
             type: 'input',
             name: 'name',
-            message: 'Enter the name of the new department:'
+            message: 'Enter the name of the new department:',
+            validate: validateCheck,
         }
     ]);
 
@@ -55,12 +71,14 @@ const roleAdding = async () => {
         {
             type: 'input',
             name: 'title',
-            message: 'Enter the title of the new role:'
+            message: 'Enter the title of the new role:',
+            validate: validateCheck,
         },
         {
             type: 'input',
             name: 'salary',
-            message: 'Enter the salary for this role:'
+            message: 'Enter the salary for this role:',
+            validate: validateCheckNumber,
         },
         {
             type: 'list',
@@ -76,26 +94,35 @@ const roleAdding = async () => {
     mainPage();
 };
 
+// fetch id and name form employees table for employeeUpdate function
 const getAllEmployees = async () => {
     const employees = await runQuery('SELECT id, CONCAT(first_name, " ", last_name) AS employee_name FROM employees');
     return employees;
 };
 
+// fetch id and title from roles table for employeeUpdate function
 const getAllRoles = async () => {
     const roles = await runQuery('SELECT id, title FROM roles');
     return roles;
 };
 
+// same way as roleAdding() did before but we need more info from fetch
 const employeeUpdate = async () => {
     const employees = await getAllEmployees();
+    // using map method to return a selected employee
     const employeeChoices = employees.map(employee => ({
+        // show name in prompt 
         name: employee.employee_name,
+        // save by employee.id
         value: employee.id
     }));
 
     const roles = await getAllRoles();
+    // using map method to return a selected employee
     const roleChoices = roles.map(role => ({
+        // show role.title in prompt 
         name: role.title,
+        // save by role.id
         value: role.id
     }));
 
@@ -118,6 +145,54 @@ const employeeUpdate = async () => {
     console.log('Employee role updated successfully!');
     mainPage();
 }
+
+const employeeAdding = async () => {
+    const roles = await getAllRoles();
+    const roleChoices = roles.map(role => ({
+        name: role.title,
+        value: role.id
+    }));
+
+    const managers = await getAllEmployees();
+    const managerChoices = managers.map(manager => ({
+        name: manager.employee_name,
+        value: manager.id
+    }));
+
+    const employee = await inquirer.prompt([
+        {
+            type: 'input',
+            name: 'first_name',
+            message: 'Enter the first name of the new employee:',
+            validate: validateCheck,
+        },
+        {
+            type: 'input',
+            name: 'last_name',
+            message: 'Enter the last name of the new employee:',
+            validate: validateCheck,
+        },
+        {
+            type: 'list',
+            name: 'role_id',
+            message: 'Select the role for the new employee:',
+            choices: roleChoices
+        },
+        {
+            type: 'list',
+            name: 'manager_id',
+            message: 'Select the manager for the new employee:',
+            choices: [
+                { name: 'None', value: null },
+                ...managerChoices
+            ]
+        }
+    ]);
+
+    await runQuery('INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [employee.first_name, employee.last_name, employee.role_id, employee.manager_id]);
+    console.log(`Employee "${employee.first_name} ${employee.last_name}" added successfully!`);
+    mainPage();
+};
 
 
 const mainPage = () => {
